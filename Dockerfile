@@ -3,24 +3,24 @@ MAINTAINER Nathan Hopkins <natehop@gmail.com>
 
 #RUN echo deb http://archive.ubuntu.com/ubuntu $(lsb_release -cs) main universe > /etc/apt/sources.list.d/universe.list
 RUN apt-get -y update\
- && apt-get -y upgrade
-
-# dependencies
-RUN apt-get -y --force-yes install vim\
- nginx\
- python-dev\
- python-flup\
- python-pip\
- python-ldap\
- expect\
- git\
- memcached\
- sqlite3\
- libcairo2\
- libcairo2-dev\
- python-cairo\
- pkg-config\
- nodejs
+ && apt-get -y upgrade\
+ && apt-get -y --force-yes install vim\
+     nginx\
+     python-dev\
+     python-flup\
+     python-pip\
+     python-ldap\
+     expect\
+     git\
+     memcached\
+     sqlite3\
+     libcairo2\
+     libcairo2-dev\
+     python-cairo\
+     pkg-config\
+     nodejs\
+ && apt-get clean\
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # python dependencies
 RUN pip install django==1.5.12\
@@ -64,7 +64,9 @@ RUN mkdir -p /var/log/carbon /var/log/graphite /var/log/nginx
 ADD conf/etc/logrotate.d/graphite-statsd /etc/logrotate.d/graphite-statsd
 
 # daemons
-ADD conf/etc/service/carbon/run /etc/service/carbon/run
+ADD conf/tmp/carbon-cache-install.sh /tmp/carbon-cache-install.sh
+RUN /tmp/carbon-cache-install.sh
+ADD conf/etc/service/carbon-relay/run /etc/service/carbon-relay/run
 ADD conf/etc/service/carbon-aggregator/run /etc/service/carbon-aggregator/run
 ADD conf/etc/service/graphite/run /etc/service/graphite/run
 ADD conf/etc/service/statsd/run /etc/service/statsd/run
@@ -73,10 +75,6 @@ ADD conf/etc/service/nginx/run /etc/service/nginx/run
 # default conf setup
 ADD conf /etc/graphite-statsd/conf
 ADD conf/etc/my_init.d/01_conf_init.sh /etc/my_init.d/01_conf_init.sh
-
-# cleanup
-RUN apt-get clean\
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # defaults
 EXPOSE 80 2003-2004 2023-2024 8125/udp 8126
