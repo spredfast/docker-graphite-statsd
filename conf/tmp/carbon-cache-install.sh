@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for instance in {a..d}
+for instance in {a..h}
 do
   mkdir -p /etc/service/carbon-cache-$instance
 cat >/etc/service/carbon-cache-$instance/run <<EOF
